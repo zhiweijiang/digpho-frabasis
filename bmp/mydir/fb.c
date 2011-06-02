@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <errno.h>
+#include <math.h>
 #include <string.h>
-
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -76,8 +77,8 @@ int fb_pixel(fb_info fb_inf, int x, int y, u32_t color)
 	}
 
 	return -1;
-
 }
+
 
 /* painting horizontal */
 int fb_pixel_row(fb_info fb_inf, int x, int y, int len, u32_t color)
@@ -93,6 +94,114 @@ int fb_pixel_row(fb_info fb_inf, int x, int y, int len, u32_t color)
 #endif
 
 	return 0;
+}
+
+int  swap(int *a, int *b)
+{
+    int *tmp = NULL;
+
+    *a = *tmp;
+    *a = *b;
+    *b = *tmp;
+
+    return 0;
+}
+
+int fb_line(fb_info fb_inf, int x1, int y1, int x2, int y2, u32_t color)
+{
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int p = 0;
+    int inc = (dx * dy < 0) ? -1 : 1;
+
+    if (abs(dx) > abs(dy)) 
+    {
+        if (dx < 0) 
+        {
+            swap(&x1, &x2);
+            swap(&y1, &y2);
+            dx = -dx;
+            dy = -dy;
+        }
+        
+        dy = abs(dy);
+        p = 2 * dy -dx;
+
+        while (x1 <= x2) 
+        {
+            fb_pixel(fb_inf, x1, y1, color);
+            x1++;
+            if (p < 0) 
+            {
+                p += 2 * dy;
+            }
+            else 
+            {
+                y1 += inc;
+                p += 2 * (dy - dx);
+            }
+        }
+    }
+    else 
+    {
+        if (dy < 0) 
+        {
+            swap(&x1, &x2);
+            swap(&y1, &y2);
+            dx = -dx;
+            dy = -dy;
+        }
+        
+        dx = abs(dx);
+        p = 2 * dx - dy;
+
+        while (y1 <= y2) 
+        {
+            fb_pixel(fb_inf, x1, y1, color);
+            y1++;
+            if (p < 0) 
+            {
+                p += 2 * dx;
+            }
+            else 
+            {
+                x1 += inc;
+                p += 2 * (dx - dy);
+            }
+        }
+    }
+    return 0;
+}
+
+int fb_cirle(fb_info fb_inf, int x0, int y0, int r, u32_t color)
+{
+    int x = 0;
+    int y = r;
+    int p = 3 - 2*r;
+    
+    while(y >= x)
+    {
+        fb_pixel(fb_inf, x0+x, y0+y, color);
+        fb_pixel(fb_inf, x0+y, y0+x, color);
+        fb_pixel(fb_inf, x0-x, y0+y, color); 
+        fb_pixel(fb_inf, x0+x, y0-y, color);
+        fb_pixel(fb_inf, x0-y, y0+x, color);
+        fb_pixel(fb_inf, x0-x, y0-y, color);
+        fb_pixel(fb_inf, x0+y, y0-x, color);
+        fb_pixel(fb_inf, x0-y, y0-x, color);
+        if(p >= 0)
+        {
+            y --;
+            p += (4*(x-y) + 10); 
+        }
+        else
+        {
+            p += (4*x + 6);
+        }
+        x++;
+    }
+    
+    return 0;
 }
 
 int fb_test(void)
