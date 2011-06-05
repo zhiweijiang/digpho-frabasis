@@ -9,8 +9,8 @@
 /* main function */
 int main(int argc, char *argv[]) 
 {
-	if (argc < 2)
-		argv[1] = "test.jpg";
+//	if (argc < 2)
+//		argv[1] = "test.jpg";
 
 	fb_info fb_inf;
 	if (init_fb(&fb_inf) < 0){

@@ -173,9 +173,38 @@ int fb_line(fb_info fb_inf, int x1, int y1, int x2, int y2, u32_t color)
     return 0;
 }
 
+int fb_left_half_cirle(fb_info fb_inf, int x0, int y0, int r, u32_t color)
+{ int x = 0;
+    int y = r;
+    int p = 3 - 2*r;
+    
+    while(y >= x)
+    {
+      //  fb_pixel(fb_inf, x0+x, y0+y, color);
+      //  fb_pixel(fb_inf, x0+y, y0+x, color);
+        fb_pixel(fb_inf, x0-x, y0+y, color); 
+      //  fb_pixel(fb_inf, x0+x, y0-y, color);
+        fb_pixel(fb_inf, x0-y, y0+x, color);
+        fb_pixel(fb_inf, x0-x, y0-y, color);
+      //  fb_pixel(fb_inf, x0+y, y0-x, color);
+       fb_pixel(fb_inf, x0-y, y0-x, color);
+        if(p >= 0)
+        {
+            y --;
+            p += (4*(x-y) + 10); 
+        }
+        else
+        {
+            p += (4*x + 6);
+        }
+        x++;
+    }
+    
+    return 0;
+}
+
 int fb_cirle(fb_info fb_inf, int x0, int y0, int r, u32_t color)
-{
-    int x = 0;
+{ int x = 0;
     int y = r;
     int p = 3 - 2*r;
     
